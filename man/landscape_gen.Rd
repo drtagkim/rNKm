@@ -4,14 +4,15 @@
 \alias{landscape_gen}
 \title{Fitness Contribution Function Generator}
 \usage{
-landscape_gen(N = 4, K = 0, PI = 1:K, g = NULL)
+landscape_gen(N = 4, K = 0, PI = NULL, g = NULL)
 }
 \arguments{
 \item{N}{Node number (bit code count)}
 
 \item{K}{dependencies}
 
-\item{PI}{determining neighbors, default is one-bit off...}
+\item{PI}{determining neighbors, default is one-bit off...
+PI is a contribution matrix of N by K containing location ids}
 
 \item{g}{contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution}
 }
@@ -27,6 +28,8 @@ uniform_landscape_N4_K1 <- landscape_gen(4,1)
 uniform_landscape_N4_K0(c(0,0,0,0))
 uniform_landscape_N4_K0(c(1,0,0,0))
 uniform_landscape_N4_K1(c(0,1,1,0))
+contr_mat <- matrix(c(3,1,1,2,4,4,2,3),4)
+landscape_fun <- landscape_gen(N=4,K=2,PI=contr_mat)
 }
 \seealso{
 CEGO::benchmarkGeneratorNKL

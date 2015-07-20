@@ -4,7 +4,7 @@
 \alias{test_nkm}
 \title{NK Lanscape simulation Test}
 \usage{
-test_nkm(N, K)
+test_nkm(N, K, loudly = TRUE)
 }
 \arguments{
 \item{N}{N}
