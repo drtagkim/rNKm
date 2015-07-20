@@ -10,6 +10,7 @@
 #' @param N Node number (bit code count)
 #' @param K dependencies
 #' @param PI determining neighbors, default is one-bit off...
+#' PI is a contribution matrix of N by K containing location ids
 #' @param g contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution
 #'
 #' @return a function(x), x is a numeric vector with 0 or 1, and the length equals N
@@ -22,18 +23,32 @@
 #' uniform_landscape_N4_K0(c(0,0,0,0))
 #' uniform_landscape_N4_K0(c(1,0,0,0))
 #' uniform_landscape_N4_K1(c(0,1,1,0))
-landscape_gen <- function (N = 4, K = 0, PI = 1:K, g = NULL)
+#' contr_mat <- matrix(c(3,1,1,2,4,4,2,3),4)
+#' landscape_fun <- landscape_gen(N=4,K=2,PI=contr_mat)
+landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
 {
-  if(N < K) return(NA)
+  PI_linear <- TRUE
+  if(N < K) return(NA) #assertion
   if (is.null(g)) {
     g <- matrix(runif(N * 2^(K + 1)), N)
+  }
+  if (is.null(PI)) {
+    PI <- 1:K
+  } else {
+    if(!is.matrix(PI)) return(NA) #assertion
+    PI_linear <- FALSE
   }
   bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
     usum0 = foreach(i = 1:N,.combine=c) %do% {
       if(K != 0) {
-        xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
+        if(PI_linear) {
+          xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
+        } else {
+          #contribution matrix
+          xx <- x[c(i, PI[i,])]
+        }
       } else {
         xx <- x[i]
       }
@@ -42,6 +57,33 @@ landscape_gen <- function (N = 4, K = 0, PI = 1:K, g = NULL)
     usum = sum(usum0)
     return(usum/N)
   }
+}
+
+# Influence Matrix to Contribution Matrix ---------------------------------
+#' Creating a Contribution Matrix from an Influence Matrix
+#'
+#' Getting PI for generate an NK Landscape
+#'
+#' @param inf_mat influence matrix (N by N)
+#'
+#' @return contribution matrix PI
+#'
+#' @examples
+#' inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
+#' cont_mat <- convert_influence_contribution(inf_mat)
+#' landscape_fun_N4_K2 = landscape_gen(N=4,K=2,PI=cont_mat)
+#' landscape_fun_N4_K2(c(0,1,1,0))
+convert_influence_contribution <- function(inf_mat) {
+  if(!is.matrix(inf_mat)) return(NA)
+  if(dim(inf_mat)[1] != dim(inf_mat)[2]) return(NA)
+  inf_mat0 <- inf_mat
+  diag(inf_mat0) <- 0
+  inf_mat0 <- t(inf_mat0)
+  cont_mat = foreach(i = inf_mat0,.combine=rbind) %do% {
+    which(i==1)
+  }
+  rownames(cont_mat) <- colnames(cont_mat) <- NULL
+  return(cont_mat)
 }
 
 int2bit <- function(x,precision=0) {
