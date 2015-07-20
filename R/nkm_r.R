@@ -3,37 +3,44 @@
 #   kimtk@suwon.ac.kr
 #   NK Landscape Practice
 #   2015.07.
-# Dependencies ------------------------------------------------------------
-# if(!require(CEGO)) {
-#   install.packages("CEGO")
-#   library(CEGO)
-# }
-# if(!require(foreach)) {
-#   install.packages("foreach")
-#   library(foreach)
-# }
-# if(!require(stringr)) {
-#   install.packages("stringr")
-#   library(stringr)
-# }
-# if(!require(plot3D)) {
-#   install.packages("plot3D")
-#   library(plot3D)
-# }
-# Int to Bit Representation -----------------------------------------------
-landscape_gen <- function (N = 10, K = 1, PI = 1:K, g = NULL)
+#' Fitness Contribution Function Generator
+#'
+#' This function generates a fitness contribution function
+#'
+#' @param N Node number (bit code count)
+#' @param K dependencies
+#' @param PI determining neighbors, default is one-bit off...
+#' @param g contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution
+#'
+#' @return a function(x), x is a numeric vector with 0 or 1, and the length equals N
+#'
+#' @seealso CEGO::benchmarkGeneratorNKL
+#'
+#' @examples
+#' uniform_landscape_N4_K0 <- landscape_gen(N=4,K=0)
+#' uniform_landscape_N4_K1 <- landscape_gen(4,1)
+#' uniform_landscape_N4_K0(c(0,0,0,0))
+#' uniform_landscape_N4_K0(c(1,0,0,0))
+#' uniform_landscape_N4_K1(c(0,1,1,0))
+landscape_gen <- function (N = 4, K = 0, PI = 1:K, g = NULL)
 {
+  if(N < K) return(NA)
   if (is.null(g)) {
     g <- matrix(runif(N * 2^(K + 1)), N)
   }
   bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
-    for (i in 1:N) {
-      xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
-      usum = usum + g[i, sum(bits * xx) + 1]
+    usum0 = foreach(i = 1:N,.combine=c) %do% {
+      if(K != 0) {
+        xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
+      } else {
+        xx <- x[i]
+      }
+      g[i, sum(bits * xx)+1]
     }
-    -usum/N
+    usum = sum(usum0)
+    return(usum/N)
   }
 }
 
