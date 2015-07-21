@@ -7,3 +7,5 @@ Description: Experimental package for NKM
 Depends: R (>= 3.2.1),dplyr,foreach,stringr,plot3D
 License: >GPL-2
 LazyData: true
+Suggests: knitr
+VignetteBuilder: knitr

@@ -4,12 +4,10 @@
 \alias{test_plot}
 \title{Plot of Landscape Test}
 \usage{
-test_plot(N, K)
+test_plot(peaks)
 }
 \arguments{
-\item{N}{N}
-
-\item{K}{K}
+\item{peaks}{test_nkm object}
 }
 \description{
 (under development)

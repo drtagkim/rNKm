@@ -11,9 +11,6 @@ test_nkm(N, K, loudly = TRUE)
 
 \item{K}{K}
 }
-\value{
-optimal locations
-}
 \description{
 A simple test unit for NKM
 }
