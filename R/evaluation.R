@@ -32,7 +32,7 @@ calculate_value_on_location <- function(current_fit,nk.result,nk_landscape,noise
   } else {
     new_pos = -1
     alternative_fit=current_fit
-  }#if-else
+  }
   rv$new_pos=new_pos
   rv$new_fit=alternative_fit
   rv$stabilized=ifelse(new_pos>=0,FALSE,TRUE)
