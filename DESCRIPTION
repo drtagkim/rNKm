@@ -4,7 +4,7 @@ Version: 0.0.1
 Authors: Taekyung Kim
 Maintainer: TK Kim <kimtk@suwon.ac.kr>
 Description: Experimental package for NKM
-Depends: R (>= 3.2.1),dplyr,foreach,stringr,plot3D
+Depends: R (>= 3.2.1),dplyr,foreach,stringr,plot3D,scales
 License: >GPL-2
 LazyData: true
 Suggests: knitr
