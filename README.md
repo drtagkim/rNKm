@@ -1,6 +1,7 @@
 # rNKm
 NK Landscape Modeling Toolkit for R
 
+## Introduction
 Complex adaptive systems can be characterized as consisting of a large number of components that can interact with each other. Kauffman's (1993) NK model is one of practical approaches that describe real world events closely relating to business events. In this R package, you can find useful functions and procedural codes to construct NK models with ease. Kauffman's (1993) NK model is originally developed in the context of evolutionary biology; however, we believe that numerous management scholars can use it for simulating a complex phenomena to develop theoretical ideas.
 
 **Contributors:**
