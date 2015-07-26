@@ -1,7 +1,7 @@
 Package: rNKm
 Title: R for NK Landscape Modeling
 Version: 0.1.1
-Authors@R: person("Taekyung","Kim",email="kimtk@suwon.ac.kr",role=c('aut','cre'))
+Authors@R: person("Taekyung","Kim",email="kimtk@suwon.ac.kr",role=c('aut','cre'),"'")
 Maintainer: TK Kim <kimtk@suwon.ac.kr>
 Description: Experimental package for NKM
 Depends: R (>= 3.2.1),dplyr,foreach,stringr,plot3D,scales

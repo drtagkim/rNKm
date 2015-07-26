@@ -58,7 +58,23 @@ landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
     return(usum/N)
   }
 }
-
+#' Redesign Influence Matrix with Keeping a Structure
+#'
+#' Given a newly specified component structure, the influence matrix is redesigned. 
+#'
+#' @seealso Ethiraj, S. K. and Levinthal, D. (2004). "Bounded Rationality and the Search for Organizational Architecture: An Evolutionary Perspective on the Design of Organizations and Their Evolvability," \emph{Administrative Science Quarterly}, \strong{49}, 404-437.
+#' @param inf_mat Influence matrix
+#' @param new_configuration New sequence of configuration
+#' @examples
+#' inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
+#' rownames(inf_mat) <- colnames(inf_mat) <- c("a","b","c","d")
+#' new_configuration <- c("b","a","d","c")
+#' new_inf_mat <- redesign_influence_matrix(inf_mat,new_configuration)
+redesign_influence_matrix <- function(inf_mat,new_configuration) {
+    inf_mat_out <- inf_mat[new_configuration,new_configuration]
+    rownames(inf_mat_out) <- colnames(inf_mat_out) <- new_configuration
+    inf_mat_out
+}
 # Influence Matrix to Contribution Matrix ---------------------------------
 #' Creating a Contribution Matrix from an Influence Matrix
 #'
