@@ -21,6 +21,7 @@ get_configuration <- function(location_id,N,element_id) {
 #'
 #' @param location_id Agent's location
 #' @param N Number of components
+#' @param coverage
 #'
 #' @return Location IDs for all the possible configurations
 #'
@@ -29,4 +30,19 @@ get_all_configuration <- function(location_id,N,coverage=1:N) {
     get_configuration(location_id,N,element_id)
   }
   return(an)
+}
+gen_lowdim_fraction <- function(configure,N1) {
+  N = length(configure) - length(N1)
+  if(N==0) {
+    return(matrix(configure,nrow=1,byrow=TRUE))
+  }
+  idx = 1:length(configure)
+  ins = idx[!(idx %in% N1)]
+  coverage = foreach(i=1:N) %do% 0:1
+  cases = as.matrix(expand.grid(coverage))
+  rownames(cases) <- colnames(cases) <- NULL
+  original = foreach(i=1:nrow(cases),.combine=rbind) %do% configure
+  rownames(original) <- colnames(original) <- NULL
+  original[,ins] <- cases[,1:N]
+  return(original)
 }
