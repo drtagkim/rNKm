@@ -1,24 +1,15 @@
 ---
-title: "rNKm 초간단 사용법 (Korean Manual)"
+title: "Landscape 생성의 101"
 author: "김태경"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{(Korean) Creating a Landscape: 101}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-본 문서는 rNKm을 이해하는 가장 기본적인 방법 소개를 하는 한글 메뉴얼이다. 본 문서는
-
-1. NK Landscape를 생성하기
-1. 검색 알고리즘 적용하기
-1. 시뮬레이션 수행하기
-1. 시뮬레이션 결과 출력하기
-
-와 같은 내용을 담고 있다.
-
-# NK Landscape 생성하기
+본 튜토리얼은 NK Landscape를 생성하기 위한 기본적인 함수 사용법을 보여준다. 이외에도 NK Landscape는 low dimensionality나 modularity, 그리고 비대칭적 의존성, part-whole의 디자인을 비롯하여 환경의 불확실성, 충격적 사건의 발생, 서로 다른 복수의 landscape 사이의 상호 관계 등과 관련되어서도 논의될 수 있다. 이와 같은 접근들을 rNKm 패키지의 확장된 기능들과 모델링 기술을 결합하여 효과적으로 모델링될 수 있다.
 
 ## Landscape 생성 함수
 ```{r,eval=FALSE}
@@ -84,3 +75,56 @@ inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
 contr_mat <- convert_influence_contribution(inf_mat)
 contr_mat
 ```
+
+Contribution matrix는 PI(Part Interdependency) 파라미터에 전달한다.
+
+```{r,eval=TRUE}
+inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
+contr_mat <- convert_influence_contribution(inf_mat)
+fun <- landscape_gen(N=4,K=2,PI=contr_mat)
+fun(c(0,0,0,0))
+fun(c(1,0,0,0))
+fun(c(1,1,0,0))
+```
+
+## Landscape Plotting
+
+NK 시스템 내에서 의존성이 커지면 거친 landscape가 그렇지 않으면 글로벌 피크가 존재하는 단순한 형태의 그림이 생성된다. 이를 확인할 수 있는 가장 간단한 방법은 3차원 그림을 그려보는 것이다.
+
+```{r,eval=TRUE,fig.show='hold'}
+require(rNKm)
+n4k0 <- create_nkm_simple(N=6,K=1) #wrapper, N=6, K=1
+test_plot(n4k0)
+```
+
+다음 그림과 비교해보자.
+
+```{r,eval=TRUE,fig.show='hold'}
+require(rNKm)
+n4k3 <- create_nkm_simple(N=6,K=5)
+test_plot(n4k3)
+```
+
+좀 더 명확하게 결과를 보기 위해 직접 시뮬레이션을 실행하여 peak 지점들을 찾아보자. 물론 상세한 내용은 이후에 더욱 더 자세히 설명하기로 하고 우선 다음 코드를 실행한다.
+
+```{r,eval=TRUE}
+require(dplyr) #data manipulation package
+require(rNKm)
+nk.data = create_nkm_simple(6,0) #create a landscape N=6, K=0
+agent_size=10
+result = search_hill_climbing_full(agent_size,nk.data$loc_ids,nk.data$nk_landscape)
+do.call(rbind,lapply(result,function(x){x %>% filter(from>0 & to<0)})) #combining the final results
+```
+
+결과에서 to=-1은 더 이상 갈 곳이 없다는 뜻이다. 따라서 to=-1인 곳의 from이 최종 종착지이며 stabilized=TRUE가 좀더 명확하게 그러한 점을 기술한다. 다음과 비교하자.
+
+```{r,eval=TRUE}
+require(dplyr)
+require(rNKm)
+nk.data = create_nkm_simple(6,5)
+agent_size=10
+result = search_hill_climbing_full(agent_size,nk.data$loc_ids,nk.data$nk_landscape)
+do.call(rbind,lapply(result,function(x){x %>% filter(from>0 & to<0)}))
+```
+
+의존성이 작은 경우(K=0)보다 의존성이 큰 경우(K=5)가 더 많은 로컬 peak들을 가진다. 

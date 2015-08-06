@@ -1,0 +1,42 @@
+---
+title: "Low Dimensionality"
+author: "김태경"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{(Korean) Modeling Low Dimensionality}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+dddd
+
+## 테스팅
+
+```{r,eval=FALSE}
+# use {foreach}
+if(!require(foreach)) {
+    install.packages("foreach")
+    library(foreach)
+}
+# creating experiment environment
+experiment_gavettiLevinthal <- function(K) {
+    nk.data = create_nkm_simple(10,K)
+    agent_size=100
+    result = search_hill_climbing_full(agent_size,nk.data$loc_ids,nk.data$nk_landscape)
+    stabilized_set = do.call(rbind,lapply(result,function(x){x %>% filter(from>0 & to<0)}))
+    length(unique(stabilized_set$from))
+}
+# experiment executor
+do_exp <- function(K,trial=4) {
+    results <- foreach(i=1:trial,.combine=c) %do% {
+        experiment_gavettiLevinthal(K)
+    }
+    sum(results)/trial
+}
+real_number_peaks <- list()
+# experimenting
+real_number_peaks[[1]] <- do_exp(0)
+real_number_peaks[[2]] <- do_exp(1)
+real_number_peaks[[3]] <- do_exp(2)
+```

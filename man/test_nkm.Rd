@@ -5,12 +5,8 @@
 \title{NK Lanscape simulation Test}
 \usage{
 test_nkm()
-
-test_nkm()
 }
 \description{
-A simple test unit for NKM
-
 A simple test unit for NKM
 }
 
