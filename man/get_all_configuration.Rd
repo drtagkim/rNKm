@@ -10,6 +10,8 @@ get_all_configuration(location_id, N, coverage = 1:N)
 \item{location_id}{Agent's location}
 
 \item{N}{Number of components}
+
+\item{coverage}{}
 }
 \value{
 Location IDs for all the possible configurations

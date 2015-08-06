@@ -1,0 +1,86 @@
+---
+title: "rNKm 초간단 사용법 (Korean Manual)"
+author: "김태경"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+본 문서는 rNKm을 이해하는 가장 기본적인 방법 소개를 하는 한글 메뉴얼이다. 본 문서는
+
+1. NK Landscape를 생성하기
+1. 검색 알고리즘 적용하기
+1. 시뮬레이션 수행하기
+1. 시뮬레이션 결과 출력하기
+
+와 같은 내용을 담고 있다.
+
+# NK Landscape 생성하기
+
+## Landscape 생성 함수
+```{r,eval=FALSE}
+library(rNKm) #라이브러리 읽기
+fun <- landscape_gen(N=4,K=0) #landscape generation function
+```
+## 전체 Fitness values 구하기
+전체 값을 한 번에 구하려면 create_landscape() 함수를 사용한다.
+
+```{r,eval=FALSE}
+library(rNKm) #라이브러리 읽기
+fun <- landscape_gen(N=4,K=0) #landscape generation function
+land <- create_landscape(N=4,K=0,fun)
+```
+
+land$landscape는 다음과 같이 보일 것이다.
+
+```{r,echo=FALSE,results='asis'}
+library(rNKm, quietly=TRUE,warn.conflicts=FALSE) #라이브러리 읽기
+fun <- landscape_gen(N=4,K=0) #landscape generation function
+land <- create_landscape(N=4,K=0,fun)
+knitr::kable(land$landscape)
+```
+
+Landscape generation 함수를 생성한 다음 개별적으로 fitness 값들을 골라 볼 수도 있다.
+
+```{r,eval=FALSE}
+locations <- create_locations(N=4)
+fun(locations[1,]) # (0,0,0,0)인 경우
+fun(locations[2,]) # (1,0,0,0)인 경우
+```
+
+10진수의 2진수 변환은 왼쪽에서 오른쪽 순서다. 따라서 5를 2진수 변환한 표현은 (1,0,1,0), 즉 $2^0 \times 1 + 2^1 \times 0 + 2^2 \times 1 + 2^3 \times 0 = 5$이다. 
+
+## Influence Matrix
+
+Influence Matrix (IM)은 component elements 간의 상호 의존성을 나타낸다. 아무런 의존이 없는 상태에서도 최소한 자기와의 의존성(즉, 존재한다는 사실 그 자체)은 표현해야 한다. 예를 들어 4 by 4 identity matrix가 그러하다.
+
+```{r,eval=TRUE}
+diag(4)
+```
+
+행 축이 to, 열 축이 from의 의미가 있다면 association 관계를 생각할 수 있다. 이와 같은 의존성(dependency) 표현은 개념적 관계를 모델링하는 사람들에게는 친숙한 일이다. 의존 관계가 있을 때 1이라 표현한다면 예를 들어 다음과 같은 4 by 4 행렬의 influence matrix를 구성할 수 있다.
+
+```{r, eval=TRUE}
+inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
+inf_mat
+```
+
+1번은 3번과 4번 element를, 2번은 1번과 4번을, 3번은 1, 2를, 4번은 2, 3번과 의존 관계에 있다. 이와 같은 의존 관계를 정의하지 않을 경우, landscape_gen()이나 landscape_gen_lowdim()은 항상 최근방 의존성을 가정한다. 즉, 다음과 같은 형태의 행렬을 생각하게 된다.
+
+```{r, eval=TRUE}
+inf_mat <- matrix(c(1,1,0,0,0,1,1,0,0,0,1,1,1,0,0,1),4)
+inf_mat
+```
+
+## Contribution Matrix
+
+의존 관계를 구체적인 fitness value로 표현하기 위하여 의존이 발생되는 위치 정보를 함수에 알려줘야 한다. 물론, landscape_gen()이나 landscape_gen_lowdim() 함수에 이 정보를 알려주지 않으면 기본적인 형태의 influence matrix만으로 의존 관계를 표현하는 contribution matrix를 구성한다. Contribution matrix는 다음과 같이 대단히 간단하게 생성할 수 있다.
+
+```{r, eval=TRUE}
+inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
+contr_mat <- convert_influence_contribution(inf_mat)
+contr_mat
+```

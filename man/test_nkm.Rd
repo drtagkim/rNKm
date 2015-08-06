@@ -4,14 +4,13 @@
 \alias{test_nkm}
 \title{NK Lanscape simulation Test}
 \usage{
-test_nkm(N, K, loudly = TRUE)
-}
-\arguments{
-\item{N}{N}
+test_nkm()
 
-\item{K}{K}
+test_nkm()
 }
 \description{
+A simple test unit for NKM
+
 A simple test unit for NKM
 }
 

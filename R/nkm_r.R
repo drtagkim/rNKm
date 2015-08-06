@@ -210,3 +210,51 @@ create_plot_landscape <- function(N=2) {
   }
   a0
 }
+#' Creating an NK Landscape
+#'
+#' Creating all fitness values based on a given generation function
+#'
+#' @param N N
+#' @param K K
+#' @param fuc an object of landscape_gen or landscape_gen_lowdim
+#'
+#' @return
+#' a list of fitness values and others:
+#' \enumerate{
+#' \item $N
+#' \item $K
+#' \item $loc_ids
+#' \item $loc_bit_ids
+#' \item $landscape
+#' }
+create_landscape <- function(N,K,fuc) {
+  loc_ids = seq(0,2^N-1)
+  loc_bit_ids = foreach(id=loc_ids,.combine=rbind) %do% int2bit(id,N)
+  rownames(loc_bit_ids) = loc_ids
+  contributions.t = t(as.matrix(loc_bit_ids))
+  fitness_values = foreach(id=contributions.t,.combine=c) %do% fun(id)
+  nk_landscape = data.frame(id_bit=loc_bit_ids,fitness=fitness_values)
+  rv = list()
+  rv$N = N
+  rv$K = K
+  rv$loc_ids = loc_ids
+  rv$loc_bit_ids = loc_bit_ids
+  rv$landscape = nk_landscape
+  rv
+}
+#' @title
+#' Creating Location IDs and Bitwise Representation
+#'
+#' @description
+#' Creating location IDs and bitwise representation
+#'
+#' @param N
+#' @return data.frame object of location ids and bitwise representation
+#'
+create_locations <- function(N) {
+  loc_ids = seq(0,2^N-1)
+  loc_bit_ids = foreach(id=loc_ids,.combine=rbind) %do% int2bit(id,N)
+  rownames(loc_bit_ids) = loc_ids
+  locations = data.frame(id_bit=loc_bit_ids)
+  locations
+}
