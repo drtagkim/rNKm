@@ -100,7 +100,8 @@ landscape_gen_lowdim <- function (N = 4, K = 0, N1=1:4,PI = NULL, g = NULL)
     usum = 0
     lowdim_fraction = t(gen_lowdim_fraction(x,N1))
     usum1 = foreach(lf=lowdim_fraction,.combine=c) %do% {
-        usum0 = foreach(i = N1,.combine=c) %do% {
+        lf = as.numeric(lf)
+        usum0 = foreach(i = 1:N,.combine=c) %do% {
           if(K != 0) {
             if(PI_linear) {
               xx <- lf[c(i, ((i + PI - 1)%%N) + 1)]

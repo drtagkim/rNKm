@@ -73,7 +73,26 @@ create_nkm_simple <- function(N,K) {
   #loc_bit_ids
   contributions = t(as.matrix(loc_bit_ids))
   fun <- landscape_gen(N,K)
-  fitness_values = foreach(id=contributions,.combine=c) %do% fun(id)
+  fitness_values = foreach(id=contributions,.combine=c) %do% fun(as.numeric(id))
+  nk_landscape = cbind(loc_bit_ids,fitness_values)
+  rv = list()
+  rv$N = N
+  rv$K = K
+  rv$loc_ids = loc_ids
+  rv$loc_bit_ids = loc_bit_ids
+  rv$fun <- fun
+  rv$fitness_values = fitness_values
+  rv$nk_landscape = nk_landscape
+  rv
+}
+create_nkm_simple_lowdim <- function(N,K,N1) {
+  loc_ids = seq(0,2^N-1)
+  loc_bit_ids = foreach(id=loc_ids,.combine=rbind) %do% int2bit(id,N)
+  rownames(loc_bit_ids) = loc_ids
+  #loc_bit_ids
+  contributions = t(as.matrix(loc_bit_ids))
+  fun <- landscape_gen_lowdim(N,K,N1=N1)
+  fitness_values = foreach(id=contributions,.combine=c) %do% fun(as.numeric(id))
   nk_landscape = cbind(loc_bit_ids,fitness_values)
   rv = list()
   rv$N = N

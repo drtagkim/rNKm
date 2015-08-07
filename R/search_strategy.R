@@ -7,6 +7,7 @@
 #' @param nk_landscape fitness (matrix)
 #' @param noise Noise coefficient (0=none to 1=full)
 #' @param noise_vector Noise structure (default, following a uniform distribution)
+#' @parma random_pos If TRUE, agents are positioned randomly; otherwise, in sequence
 #'
 #' @examples
 #' nk.data = create_nkm_simple(6,3)
@@ -16,14 +17,18 @@
 #' @seealso
 #' \code{\link{calculate_value_on_location}}
 #'
-search_hill_climbing_full <- function(agent_size,loc_ids,nk_landscape,noise=0,noise_vector=NULL) {
+search_hill_climbing_full <- function(agent_size,loc_ids,nk_landscape,noise=0,noise_vector=NULL,random_pos=TRUE) {
   cat("========================","\n",sep="")
   cat("    Hill Climbing","\n",sep="")
   cat("========================","\n\nProgress...\n\n",sep="")
   fitness_col_id = ncol(nk_landscape)
   N = fitness_col_id - 1
   search_record = foreach(pos=1:agent_size) %do% {
-    agent_loc = sample(loc_ids,1)
+    if(random_pos) {
+      agent_loc = sample(loc_ids,1)
+    } else {
+      agent_loc = loc_ids[pos]
+    }
     fnow = nk_landscape[agent_loc+1,fitness_col_id]
     data.frame(agent_id=pos,from=-1,to=agent_loc,fitness_value=fnow,stabilized=FALSE)
   }#foreach
