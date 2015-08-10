@@ -4,7 +4,7 @@
 \alias{landscape_gen}
 \title{Fitness Contribution Function Generator}
 \usage{
-landscape_gen(N = 4, K = 0, PI = NULL, g = NULL)
+landscape_gen(N = 4, K = 0, PI = NULL, sub_idx = NULL, g = NULL)
 }
 \arguments{
 \item{N}{Node number (bit code count)}
@@ -13,6 +13,8 @@ landscape_gen(N = 4, K = 0, PI = NULL, g = NULL)
 
 \item{PI}{determining neighbors, default is one-bit off...
 PI is a contribution matrix of N by K containing location ids}
+
+\item{sub_idx}{index vector for sub-landscape design}
 
 \item{g}{contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution}
 }

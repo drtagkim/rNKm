@@ -4,12 +4,17 @@
 \alias{landscape_gen_lowdim}
 \title{Fitness Contribution Function Generator}
 \usage{
-landscape_gen_lowdim(N = 4, K = 0, N1 = 1:4, PI = NULL, g = NULL)
+landscape_gen_lowdim(N = 4, K = 0, sub_idx = NULL, N1 = 1:4,
+  PI = NULL, g = NULL)
 }
 \arguments{
 \item{N}{Node number (bit code count)}
 
 \item{K}{dependencies}
+
+\item{sub_idx}{index vector for sub-landscape design}
+
+\item{N1}{Low dimension mask}
 
 \item{PI}{determining neighbors, default is one-bit off...
 PI is a contribution matrix of N by K containing location ids}

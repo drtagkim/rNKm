@@ -5,7 +5,7 @@
 \title{Hill Climbing Search (Full Coverage)}
 \usage{
 search_hill_climbing_full(agent_size, loc_ids, nk_landscape, noise = 0,
-  noise_vector = NULL)
+  noise_vector = NULL, random_pos = TRUE)
 }
 \arguments{
 \item{agent_size}{Number of agents}
@@ -17,6 +17,8 @@ search_hill_climbing_full(agent_size, loc_ids, nk_landscape, noise = 0,
 \item{noise}{Noise coefficient (0=none to 1=full)}
 
 \item{noise_vector}{Noise structure (default, following a uniform distribution)}
+
+\item{random_pos}{If TRUE, agents are positioned randomly; otherwise, in sequence}
 }
 \description{
 Executing hill climbing search

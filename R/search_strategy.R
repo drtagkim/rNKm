@@ -7,7 +7,7 @@
 #' @param nk_landscape fitness (matrix)
 #' @param noise Noise coefficient (0=none to 1=full)
 #' @param noise_vector Noise structure (default, following a uniform distribution)
-#' @parma random_pos If TRUE, agents are positioned randomly; otherwise, in sequence
+#' @param random_pos If TRUE, agents are positioned randomly; otherwise, in sequence
 #'
 #' @examples
 #' nk.data = create_nkm_simple(6,3)

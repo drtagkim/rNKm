@@ -61,21 +61,20 @@ landscape_gen <- function (N = 4, K = 0, PI = NULL, sub_idx = NULL, g = NULL)
   if(is.null(sub_idx)) {
     sub_idx = 1:N
   }
-  bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
     usum0 = foreach(i = sub_idx,.combine=c) %do% {
       if(K != 0) {
         if(PI_linear) {
-          xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
+          xx <- x[unique(sort(c(i, ((i + PI - 1)%%N) + 1)))]
         } else {
           #contribution matrix
-          xx <- x[c(i, PI[i,])]
+          xx <- x[unique(sort(c(i, na.omit(PI[i,]))))]
         }
       } else {
         xx <- x[i]
       }
-      g[i, sum(bits * xx)+1]
+      g[i, sum(2^(0:(length(xx)-1)) * xx)+1]
     }
     usum = sum(usum0)
     return(usum/N)
@@ -122,7 +121,6 @@ landscape_gen_lowdim <- function (N = 4, K = 0, sub_idx=NULL, N1=1:4, PI = NULL,
   if(is.null(sub_idx)) {
     sub_idx = 1:N
   }
-  bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
     lowdim_fraction = t(gen_lowdim_fraction(x,N1))
@@ -131,15 +129,15 @@ landscape_gen_lowdim <- function (N = 4, K = 0, sub_idx=NULL, N1=1:4, PI = NULL,
         usum0 = foreach(i = sub_idx,.combine=c) %do% {
           if(K != 0) {
             if(PI_linear) {
-              xx <- lf[c(i, ((i + PI - 1)%%N) + 1)]
+              xx <- lf[unique(sort(c(i, ((i + PI - 1)%%N) + 1)))]
             } else {
               #contribution matrix
-              xx <- lf[c(i, PI[i,])]
+              xx <- lf[unique(sort(c(i, na.omit(PI[i,]))))]
             }
           } else {
             xx <- lf[i]
           }
-          g[i, sum(bits * xx)+1]
+          g[i, sum(2^(0:(length(xx)-1)) * xx)+1]
         }
         usum0
     }
@@ -156,15 +154,20 @@ landscape_gen_lowdim <- function (N = 4, K = 0, sub_idx=NULL, N1=1:4, PI = NULL,
 #' @seealso Ethiraj, S. K. and Levinthal, D. (2004). "Bounded Rationality and the Search for Organizational Architecture: An Evolutionary Perspective on the Design of Organizations and Their Evolvability," \emph{Administrative Science Quarterly}, \strong{49}, 404-437.
 #' @param inf_mat Influence matrix
 #' @param new_configuration New sequence of configuration
+#'
+#' @return a list of new influence matrix (a=original, b=transformed order)
 #' @examples
 #' inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
 #' rownames(inf_mat) <- colnames(inf_mat) <- c("a","b","c","d")
 #' new_configuration <- c("b","a","d","c")
-#' new_inf_mat <- redesign_influence_matrix(inf_mat,new_configuration)
+#' new_inf_mat <- redesign_influence_matrix(inf_mat,new_configuration)$a
 redesign_influence_matrix <- function(inf_mat,new_configuration) {
-    inf_mat_out <- inf_mat[new_configuration,new_configuration]
+    inf_mat_out <- inf_mat
     rownames(inf_mat_out) <- colnames(inf_mat_out) <- new_configuration
-    inf_mat_out
+    rv = list()
+    rv$a = inf_mat_out
+    rv$b = inf_mat_out[rownames(inf_mat),colnames(inf_mat)]
+    rv
 }
 # Influence Matrix to Contribution Matrix ---------------------------------
 #' Creating a Contribution Matrix from an Influence Matrix
@@ -187,10 +190,14 @@ convert_influence_contribution <- function(inf_mat) {
   diag(inf_mat0) <- 0
   inf_mat0 <- t(inf_mat0)
   cont_mat = foreach(i = inf_mat0,.combine=rbind) %do% {
-    which(i==1)
+    i = as.numeric(i)
+    a = which(i==1)
+    length(a) = length(i)
+    a
   }
   rownames(cont_mat) <- colnames(cont_mat) <- NULL
-  return(cont_mat)
+  row_cut_point <- max(apply(cont_mat,1,function(x) {sum(!is.na(x))}))
+  return(cont_mat[,1:row_cut_point])
 }
 
 int2bit <- function(x,precision=0) {

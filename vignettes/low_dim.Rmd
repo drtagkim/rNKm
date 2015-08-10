@@ -81,3 +81,9 @@ rescale(rnd_str)
 ## Peak 탐색 실험
 
 ![GL](gavetti_levinthal_2000.jpg)
+
+위의 그림은 **Gavetti & Levinthal**이 2000년에 *Administrative Science Quarterly* 45권에 제시한 것이다. 그림을 보면 Low Dimensionality가 있을 경우 peaks의 수가 적다는 점을 확인할 수 있다. {rNKm}로 모델링할 때 이와 일치하는 결과를 얻을 수 있다. 
+
+![LDexp](lowdim_exp.png)
+
+N=6, N1=2로 설정한 landscape_gen_lowdim()을  세 차례 반복 시뮬레이션의 평균값을 그린 그림이다.

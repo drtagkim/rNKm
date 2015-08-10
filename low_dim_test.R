@@ -32,8 +32,11 @@ do_exp2 <- function(K,trial=4) {
   sum(results)/trial
 }
 
-experiment_gavettiLevinthal(3)
-experiment_gavettiLevinthal2(3)
-
-
-gen_lowdim_fraction(c(1,0,0,0),c(1,2))
+run_sim <- function(K) {
+  cat("Normal=",experiment_gavettiLevinthal(K),"\n")
+  cat("LowDim=",experiment_gavettiLevinthal2(K),"\n")
+}
+for(k in 0:9) {
+  run_sim(k)
+  cat("===============")
+}
