@@ -31,6 +31,13 @@ get_all_configuration <- function(location_id,N,coverage=1:N) {
   }
   return(an)
 }
+#' Generating Low Dimensionality Fractions
+#'
+#' Generating Low Dimensionality Fractions
+#'
+#' @param configure Original configuration
+#' @param N1 Low dimensionality masking vector
+#' @return Low dimensionality fractions (matrix)
 gen_lowdim_fraction <- function(configure,N1) {
   N = length(configure) - length(N1)
   if(N==0) {

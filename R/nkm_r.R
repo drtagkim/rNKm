@@ -4,6 +4,24 @@
 #   NK Landscape Practice
 #   2015.07.
 
+#' Generating Random Numbers by Uniform Distribution
+#'
+#' Generating Random Numbers by Uniform Distribution
+#'
+#' @param N
+#' @param K
+#' @param seed_no Random seed if any
+#'
+#' @return Uniform distribution
+#'
+landscape_structure_uniform <-function(N=4,K=0,seed_no=NULL) {
+  if(!is.null(seed_no)) {
+    set.seed(seed_no)
+  }
+  g <- matrix(runif(N * 2 ^(K+1)), N)
+  g
+}
+
 #' Fitness Contribution Function Generator
 #'
 #' This function generates a fitness contribution function
@@ -12,6 +30,7 @@
 #' @param K dependencies
 #' @param PI determining neighbors, default is one-bit off...
 #' PI is a contribution matrix of N by K containing location ids
+#' @param sub_idx index vector for sub-landscape design
 #' @param g contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution
 #'
 #' @return a function(x), x is a numeric vector with 0 or 1, and the length equals N
@@ -26,7 +45,7 @@
 #' uniform_landscape_N4_K1(c(0,1,1,0))
 #' contr_mat <- matrix(c(3,1,1,2,4,4,2,3),4)
 #' landscape_fun <- landscape_gen(N=4,K=2,PI=contr_mat)
-landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
+landscape_gen <- function (N = 4, K = 0, PI = NULL, sub_idx = NULL, g = NULL)
 {
   PI_linear <- TRUE
   if(N < K) return(NA) #assertion
@@ -39,10 +58,13 @@ landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
     if(!is.matrix(PI)) return(NA) #assertion
     PI_linear <- FALSE
   }
+  if(is.null(sub_idx)) {
+    sub_idx = 1:N
+  }
   bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
-    usum0 = foreach(i = 1:N,.combine=c) %do% {
+    usum0 = foreach(i = sub_idx,.combine=c) %do% {
       if(K != 0) {
         if(PI_linear) {
           xx <- x[c(i, ((i + PI - 1)%%N) + 1)]
@@ -66,8 +88,10 @@ landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
 #'
 #' @param N Node number (bit code count)
 #' @param K dependencies
+#' @param N1 Low dimension mask
 #' @param PI determining neighbors, default is one-bit off...
 #' PI is a contribution matrix of N by K containing location ids
+#' @param sub_idx index vector for sub-landscape design
 #' @param g contribution matrix structure (N by 2^(K+1)), default follows a uniform distribution
 #'
 #' @return a function(x), x is a numeric vector with 0 or 1, and the length equals N
@@ -82,7 +106,7 @@ landscape_gen <- function (N = 4, K = 0, PI = NULL, g = NULL)
 #' uniform_landscape_N4_K1(c(0,1,1,0))
 #' contr_mat <- matrix(c(3,1,1,2,4,4,2,3),4)
 #' landscape_fun <- landscape_gen(N=4,K=2,PI=contr_mat)
-landscape_gen_lowdim <- function (N = 4, K = 0, N1=1:4,PI = NULL, g = NULL)
+landscape_gen_lowdim <- function (N = 4, K = 0, sub_idx=NULL, N1=1:4, PI = NULL, g = NULL)
 {
   PI_linear <- TRUE
   if(N < K) return(NA) #assertion
@@ -95,13 +119,16 @@ landscape_gen_lowdim <- function (N = 4, K = 0, N1=1:4,PI = NULL, g = NULL)
     if(!is.matrix(PI)) return(NA) #assertion
     PI_linear <- FALSE
   }
+  if(is.null(sub_idx)) {
+    sub_idx = 1:N
+  }
   bits = 2^(0:K)
   landscape <- function(x) {
     usum = 0
     lowdim_fraction = t(gen_lowdim_fraction(x,N1))
     usum1 = foreach(lf=lowdim_fraction,.combine=c) %do% {
         lf = as.numeric(lf)
-        usum0 = foreach(i = 1:N,.combine=c) %do% {
+        usum0 = foreach(i = sub_idx,.combine=c) %do% {
           if(K != 0) {
             if(PI_linear) {
               xx <- lf[c(i, ((i + PI - 1)%%N) + 1)]

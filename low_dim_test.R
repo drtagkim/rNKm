@@ -34,3 +34,6 @@ do_exp2 <- function(K,trial=4) {
 
 experiment_gavettiLevinthal(3)
 experiment_gavettiLevinthal2(3)
+
+
+gen_lowdim_fraction(c(1,0,0,0),c(1,2))
