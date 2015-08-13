@@ -53,3 +53,29 @@ gen_lowdim_fraction <- function(configure,N1) {
   original[,ins] <- cases[,1:N]
   return(original)
 }
+#' Building Position IDs
+#'
+#' Building position IDs
+#'
+#' @param N N
+#' @return list - $N, $loc_ids, $loc_bit_ids: location ID in bit format
+#' @examples
+#' N=4
+#' K=2
+#' data <- build_ids(N)
+#' data$K = K
+#' fun <- landscape_gen(N,K)
+#' fitness_values <- foreach(id=t(as.matrix(data$loc_bit_ids)),.combine=c) %do% fun(as.numeric(id))
+#' nk_landscape <- cbind(data$loc_bit_ids,fitness_values)
+#' data$fitness_values <- fitness_values
+#' data$nk_landscape <- nk_landscape
+build_ids <- function(N) {
+  loc_ids = seq(0,2^N-1)
+  loc_bit_ids = foreach(id=loc_ids,.combine=rbind) %do% int2bit(id,N)
+  rownames(loc_bit_ids) = loc_ids
+  rv = list()
+  rv$N = N
+  rv$loc_ids = loc_ids
+  rv$loc_bit_ids = loc_bit_ids
+  rv
+}

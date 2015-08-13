@@ -11,6 +11,9 @@ redesign_influence_matrix(inf_mat, new_configuration)
 
 \item{new_configuration}{New sequence of configuration}
 }
+\value{
+a list of new influence matrix (a=original, b=transformed order)
+}
 \description{
 Given a newly specified component structure, the influence matrix is redesigned.
 }
@@ -18,7 +21,7 @@ Given a newly specified component structure, the influence matrix is redesigned.
 inf_mat <- matrix(c(1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1),4)
 rownames(inf_mat) <- colnames(inf_mat) <- c("a","b","c","d")
 new_configuration <- c("b","a","d","c")
-new_inf_mat <- redesign_influence_matrix(inf_mat,new_configuration)
+new_inf_mat <- redesign_influence_matrix(inf_mat,new_configuration)$a
 }
 \seealso{
 Ethiraj, S. K. and Levinthal, D. (2004). "Bounded Rationality and the Search for Organizational Architecture: An Evolutionary Perspective on the Design of Organizations and Their Evolvability," \emph{Administrative Science Quarterly}, \strong{49}, 404-437.

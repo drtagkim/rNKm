@@ -1,0 +1,123 @@
+---
+title: "Landscape 탐색하기"
+author: "김태경"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{(Korean) Searching a Landscape}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# 데이터 준비
+
+## 위치 ID 생성하기
+
+N=4, K=2인 경우를 생각해보자. 먼저 landscape의 위치를 확정하기 위해 가능한 모든 ID 정보들을 다 생성한다.
+
+```{r eval=TRUE,message=F}
+library(rNKm)
+# simulation setting
+N=4
+K=2
+# building IDs
+data <- build_ids(N)
+# landscape generating function
+```
+
+객체 ``data``는 loc_ids(= 10진수 고유 ID)와 loc_bit_ids(= bit string 형태의 ID)를 가진 리스트형 데이터다.
+
+## 데이터
+
+이제 landscape를 정의하기 위한 작업을 한다. 본 예제는 {rNKm}이 기본적으로 제공하는 구조에 따라 landscape를 생성한다.
+
+```{r eval=TRUE}
+land_gen_fun <- landscape_gen(N,K)
+```
+
+경우에 따라서 모든 fitness value를 미리 다 계산하고 탐색하기를 하는 일이 편하다. 패키지 {foreach}를 사용하면 효과적으로 이 작업을 마무리할 수 있다.
+
+```{r eval=TRUE}
+# calculating all fitness values at once
+fitness_values <- foreach(id=t(as.matrix(data$loc_bit_ids)),.combine=c) %do% land_gen_fun(as.numeric(id))
+```
+
+만약 landscape의 공간이 매우 크다면 {foreach} 패키지의 병렬컴퓨팅 기능을 활성화하여 코딩하는 것이 좋다. 보다 더 자세한 내용은 패키지의 설명서를 참조하기 바란다.
+
+이제 입력 데이터를 마련할 준비가 거의 끝났다. 우리가 가진 데이터를 보다 더 효과적으로 다루려면 아무래도 list형 데이터로 묶는 것이 좋다.
+
+```{r eval=TRUE}
+# binding items
+nk_landscape <- cbind(data$loc_bit_ids,fitness_values)
+data$K <- K
+data$fitness_values <- fitness_values
+data$nk_landscape <- nk_landscape
+```
+
+생성된 데이터는 나중을 위해 저장하는 습관을 가지자.
+
+```{r eval=F}
+save(data,file="my_landscape_data.RData")
+```
+
+이후 손쉽게 불러올 수 있다. 이러한 방법이 R 사용자에게 특별할 것은 없다.
+
+```{r eval=F}
+load(file="my_landscape_data.RData")
+```
+
+```{r eval=TRUE}
+agent_size <- 10
+search_record <- foreach(pos = 1:agent_size) %do% { 
+    agent_loc = sample(data$loc_ids,1) #위에서 생성한 데이터
+    #nk_landscape는 location ID의 bit 표현을 N개 가지고 있고, 마지막에 fitness value
+    #agent번호는 0부터, R의 위치 index는 1부터 시작하기 때문에...
+    #현재의 fitness value는...
+    fnow <- data$nk_landscape[agent_loc + 1, data$N + 1]
+    #you can add up properties of individual agent like this
+    data.frame(agent_id=pos,
+               from=-1,
+               to=agent_loc,
+               fitness_value=fnow,
+               stabilized=FALSE)
+}
+```
+
+``agent_size``를 10개로 정하고, search_record라는 리스트형 데이터를 생성했다. 이 데이터는 agent의 상태를 보관하여 추적한다. 시뮬레이션 내내에 일어난 모든 활동들을 우리는 ``search_record``를 업데이트하여 관찰할 수 있다. 해당 리스트의 각 item의 이름은 번호로 지정된다. 이 번호는 agent의 고유ID와 마찬가지다.
+
+**foreach() %do {}** 루프의 반복 지정은 번호 지정의 방식이 1:agent_size의 등차수열임을 분명히 보여준다. 각각의 agent의 초기 위치는 난수로 결정했다. 코드 ``sample(data$loc_ids,1)``은 어떤 위치든 하나만 선택한다는 의미로 중복을 허용한다. 만약 특정한 위치를 가정해야 한다면 우리는 그렇게 할 수 있다. 이미 data$landscap 안에 비트 기호로 표현된 location ID와 fitness value가 들어 있다. 해당 값을 꺼내어 ``fnow``에 업데이트 한다. from은 시작, to는 현재지점으로 생각한다면 우리가 한 최초의 할당이 시스템의 외부에서(즉 -1), 현재 위치로(즉, to=agent_loc)로 온 것이나 마찬가지다. 종료가 되는 시점이 되면 to가 -1 값을 가지고, ``stabilized=TRUE``로 바뀌어야 할 것이다. 
+
+agent의 기록에 해당되는 data.frame 객체는 table 형태로 각각의 agent가 가진 현재의 상태를 기록한다. 따라서 현재 예로 보이는 속성 이외의 속성들도 자유롭게 추가할 수 있다. 시뮬레이션의 목적에 따라 결정할 문제다. 
+
+```{r eval=TRUE}
+search_record
+```
+
+# Local Search
+
+시뮬레이션의 목적에 따라 탐색 과정은 단순할 수도, 복잡할 수도 있다. Landscape에서 탐색을 하는 주체를 agent라고 하면 이 agent가 어떤 position을 가진다는 의미를 따져봐야 한다. 예를 들어 agent #1이 $P_1 = {1,0,0,0}$의 position에 있다고 하자. 우리는 이로부터 어떤 가정을 수립하여 agent #1이 현재의 fitness value와 비교할 수 있는 대안들을 갖추도록 해야 한다. 
+
+지역적 검색(local searching), 언덕오르기(hill-climbing) 혹은 적응적 탐색(adaptive searching)의 가정은 agent가 한 번에 하나의 차별화된 대안만을 고려하여 선택한다는 것이다. 예를 들어 $P_1 = {1,0,0,0}$의 대안은 $P_a = {0,0,0,0}, {1,1,0,0}, {1,0,1,0}, {1,0,0,1}$의 네 가지다. 모든 대안을 탐색하기에 적절한 자원만 있다면 이들 중 최고로 높은 fintess value와 현재 위치의 fitness value를 비교한다. 만약, 대안의 위치가 더 높은 값이라면 agent #1은 현재 위치에서 대안으로 옮겨간다.
+
+앞서 우리가 생성한 search_record를 생각해 보자. 데이터는 리스트이고 각 리스트에는 data.frame 객체가 있다. 지역적 검색을 수행하려면 다음과 같은 몇 가지 문제들을 포함해 고려해야 할 사항들이 생겨난다.
+
+#. 누구와 비교하나?
+#.
+#. 언제 시뮬레이션을 중단하는가? 
+
+## 비교할 것들
+
+``{rNKm}``의 ``get_configuration()``함수는 10진수로 된 위치와 N, 그리고 바꾸고 싶은 element의 위치를 입력 받아 새로운 위치값을 10진수로 돌려준다. 예를 들어, N=3인 경우 ${1,0,0}$의 두 번째 element를 뒤집어 ${1,1,0}$이 되는 지 확인해보자.
+
+```{r eval=TRUE}
+test.pos.0 <- 1
+int2bit(test.pos.0,3)
+get_configuration(test.pos.0,N=3,element_id=2)
+int2bit(3,3)
+```
+
+
+
+# Long Jump: Exploration
+
+# Long Jump: Imitation
