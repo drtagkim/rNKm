@@ -20,11 +20,6 @@ calculate_value_on_location(current_fit, nk.result, nk_landscape, noise = 0,
 }
 \value{
 result list
-\itemize {
- \item new_pos
- \item new_fit
- \item stabilized
-}
 }
 \description{
 Evaluating Possible Alternatives to Select a New Location ID

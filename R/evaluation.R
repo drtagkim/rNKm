@@ -9,11 +9,6 @@
 #' @param noise_vector Noise structure (default, following a uniform distribution)
 #'
 #' @return result list
-#' \itemize {
-#'  \item new_pos
-#'  \item new_fit
-#'  \item stabilized
-#' }
 #'
 #' @seealso \code{\link{search_hill_climbing}}
 calculate_value_on_location <- function(current_fit,nk.result,nk_landscape,noise=0,noise_vector=NULL) {
